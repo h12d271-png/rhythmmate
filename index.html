@@ -65,6 +65,14 @@
         // --- 메인 앱 컴포넌트 ---
         function App() {
             // 상태 관리
+            const [currentWeek, setCurrentWeek] = useState(1);
+            const weekLabels = {
+                1: "1주차: 적응기",
+                2: "2주차: 리듬 찾기",
+                3: "3주차: 루틴 만들기",
+                4: "4주차: 자립의 완성"
+            };
+
             const [tasks, setTasks] = useState([
                 { id: 1, title: '기상 직후 기지개 켜기', time: '1분', type: 'rhythm', done: true },
                 { id: 2, title: '책상 위 머그컵 치우기', time: '3분', type: 'chore', done: false },
@@ -73,7 +81,12 @@
 
             const aiSuggestions = [
                 { id: 101, title: '점심 식사 후 가벼운 환기', time: '5분', message: '오후 1시네요! 실내 공기를 5분만 바꿔볼까요? 집중력이 올라갈 거예요 😊' },
-                { id: 102, title: '물 한 잔 마시기', time: '1분', message: '오늘 수분 섭취가 조금 부족해 보여요. 물 한 잔 마시는 건 어떨까요?' }
+                { id: 102, title: '물 한 잔 마시기', time: '1분', message: '오늘 수분 섭취가 조금 부족해 보여요. 물 한 잔 마시는 건 어떨까요?' },
+                { id: 103, title: '스마트폰 화면 닦기', time: '1분', message: '매일 만지는 스마트폰, 물티슈나 천으로 한 번 쓱 닦아볼까요? 기분까지 상쾌해져요!' },
+                { id: 104, title: '내일 입을 옷 꺼내두기', time: '3분', message: '내일 아침 10분의 여유를 위해, 지금 내일 입을 옷을 미리 골라두는 건 어때요?' },
+                { id: 105, title: '싱크대 거름망 비우기', time: '2분', message: '설거지가 끝났다면 거름망도 톡톡 비워주세요. 내일의 나에게 쾌적함을 선물할 수 있어요.' },
+                { id: 106, title: '가족에게 안부 카톡 보내기', time: '1분', message: '문득 생각났을 때 짧게 "밥 먹었어?"라고 보내보세요. 소소한 연결감이 힘이 됩니다.' },
+                { id: 107, title: '목, 어깨 스트레칭', time: '3분', message: '잠시 모니터나 폰에서 눈을 떼고 기지개를 켜보세요! 뭉친 어깨를 가볍게 돌려주세요.' }
             ];
             
             const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
@@ -115,7 +128,7 @@
             };
 
             return (
-                <div className="max-w-md mx-auto bg-white min-h-screen shadow-lg relative pb-20">
+                <div className="max-w-md mx-auto bg-white min-h-screen shadow-lg relative pb-20 overflow-x-hidden">
                     {/* 상단 헤더 */}
                     <header className="px-6 pt-10 pb-4 bg-teal-500 rounded-b-3xl shadow-sm text-white sticky top-0 z-10">
                         <div className="flex justify-between items-center mb-4">
@@ -125,8 +138,22 @@
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-teal-100 text-sm">1주차: 적응기</span>
-                            <span className="text-xl font-medium mt-1">오늘도 무리 없이,<br/>나만의 리듬을 찾아가요.</span>
+                            <div className="flex items-center space-x-1 w-max">
+                                <select 
+                                    value={currentWeek} 
+                                    onChange={(e) => {
+                                        setCurrentWeek(Number(e.target.value));
+                                        showToast(`${e.target.value}주차로 진도를 변경했어요! 내 페이스대로 나아가요 🏃`);
+                                    }}
+                                    className="bg-teal-600/50 hover:bg-teal-600 transition text-teal-50 text-sm py-1 px-2.5 rounded-lg border-none outline-none cursor-pointer appearance-none font-semibold"
+                                >
+                                    {Object.entries(weekLabels).map(([key, label]) => (
+                                        <option key={key} value={key} className="text-gray-800 bg-white">{label}</option>
+                                    ))}
+                                </select>
+                                <span className="text-teal-200 text-xs pointer-events-none -ml-5">▼</span>
+                            </div>
+                            <span className="text-xl font-medium mt-3">오늘도 무리 없이,<br/>나만의 리듬을 찾아가요.</span>
                         </div>
                     </header>
 
@@ -140,12 +167,12 @@
                             </div>
                             <div className="bg-white border border-purple-100 p-5 rounded-2xl shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-purple-400"></div>
-                                <p className="text-gray-800 text-sm leading-relaxed mb-4">
+                                <p className="text-gray-800 text-sm leading-relaxed mb-4 break-keep">
                                     "{aiSuggestions[currentSuggestionIndex].message}"
                                 </p>
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs text-gray-500 font-medium">예상 소요시간: {aiSuggestions[currentSuggestionIndex].time}</span>
-                                    <div className="space-x-2">
+                                    <div className="space-x-2 flex">
                                         <button onClick={declineSuggestion} className="px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                                             건너뛰기
                                         </button>
@@ -172,7 +199,7 @@
                                                 {task.title}
                                             </span>
                                         </div>
-                                        <span className="text-xs text-gray-400 px-2 py-1 bg-gray-50 rounded-md">
+                                        <span className="text-xs text-gray-400 px-2 py-1 bg-gray-50 rounded-md whitespace-nowrap">
                                             {task.time}
                                         </span>
                                     </div>
@@ -187,7 +214,7 @@
                                     <TrashIcon />
                                     <h2 className="text-sm font-bold text-orange-700">생활 캘린더</h2>
                                 </div>
-                                <p className="text-xs text-orange-600/80 mb-2">내일(목)은 <strong>재활용 쓰레기</strong> 버리는 날이에요.</p>
+                                <p className="text-xs text-orange-600/80 mb-2 break-keep">내일(목)은 <strong>재활용 쓰레기</strong> 버리는 날이에요.</p>
                                 <button className="w-full py-1.5 mt-1 text-xs font-semibold bg-white text-orange-600 border border-orange-200 rounded-lg shadow-sm">
                                     5분 정리 시작하기
                                 </button>
@@ -203,7 +230,7 @@
                                     <div className="bg-blue-500 h-1.5 rounded-full" style={{width: '70%'}}></div>
                                 </div>
                                 <p className="text-xs text-blue-700 font-medium mb-1">생활비 3만원 남음</p>
-                                <p className="text-[10px] text-blue-600/80 leading-snug mt-2 bg-white/60 p-1.5 rounded">
+                                <p className="text-[10px] text-blue-600/80 leading-snug mt-2 bg-white/60 p-1.5 rounded break-keep">
                                     💡 배달 1회 줄이면 평소 사고 싶던 <strong>룸 스프레이</strong>를 살 수 있어요!
                                 </p>
                             </section>
