@@ -105,6 +105,18 @@
                 }));
             };
 
+            const removeTask = (e, id) => {
+                e.stopPropagation(); // 목록 클릭(완료 체크) 이벤트와 겹치지 않도록 방지
+                setTasks(tasks.filter(task => task.id !== id));
+                showToast("목표를 목록에서 지웠어요. 수고하셨습니다! 👏");
+            };
+
+            const startCleanup = () => {
+                const newTask = { id: Date.now(), title: '재활용 쓰레기 5분 정리', time: '5분', type: 'chore', done: false };
+                setTasks([...tasks, newTask]);
+                showToast("오늘의 미세 목표에 '5분 정리'를 추가했어요!");
+            };
+
             const acceptSuggestion = () => {
                 const suggestion = aiSuggestions[currentSuggestionIndex];
                 setTasks([...tasks, { id: suggestion.id, title: suggestion.title, time: suggestion.time, type: 'rhythm', done: false }]);
@@ -199,9 +211,19 @@
                                                 {task.title}
                                             </span>
                                         </div>
-                                        <span className="text-xs text-gray-400 px-2 py-1 bg-gray-50 rounded-md whitespace-nowrap">
-                                            {task.time}
-                                        </span>
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-xs text-gray-400 px-2 py-1 bg-gray-50 rounded-md whitespace-nowrap">
+                                                {task.time}
+                                            </span>
+                                            {/* 삭제 버튼 추가 */}
+                                            <button 
+                                                onClick={(e) => removeTask(e, task.id)}
+                                                className="p-1.5 rounded-md text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                                                title="목표 지우기"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -215,7 +237,9 @@
                                     <h2 className="text-sm font-bold text-orange-700">생활 캘린더</h2>
                                 </div>
                                 <p className="text-xs text-orange-600/80 mb-2 break-keep">내일(목)은 <strong>재활용 쓰레기</strong> 버리는 날이에요.</p>
-                                <button className="w-full py-1.5 mt-1 text-xs font-semibold bg-white text-orange-600 border border-orange-200 rounded-lg shadow-sm">
+                                <button 
+                                    onClick={startCleanup}
+                                    className="w-full py-1.5 mt-1 text-xs font-semibold bg-white text-orange-600 border border-orange-200 rounded-lg shadow-sm hover:bg-orange-100 transition-colors">
                                     5분 정리 시작하기
                                 </button>
                             </section>
